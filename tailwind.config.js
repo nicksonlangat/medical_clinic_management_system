@@ -12,7 +12,8 @@ export default {
         'main-200': '#5E6976',
         'main-300': '',
 
-        'blue-40': '#6379EA'
+        'blue-40': '#6379EA',
+        'blue-50': '#026CFF'
       },
       backgroundColor: {
         'light-100': '#FEFEFE',
@@ -23,7 +24,8 @@ export default {
         'dark-200': '#080D2B',
         'dark-300': '#1E233C',
 
-        'blue-10': '#E8EFFB'
+        'blue-10': '#E8EFFB',
+        'blue-50': '#026CFF'
       },
       borderColor: {
         light: '#d9dde6',
