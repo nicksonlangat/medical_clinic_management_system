@@ -1,23 +1,31 @@
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
 
+import { inject } from 'vue'
 
-let page = ref("")
+const emitter = inject('emitter')
+
+let page = ref('')
+
+let clinics = ref([])
+
+emitter.on('setCurrentUser', (data) => {
+  clinics.value = data.clinics
+})
 
 const goToPage = (page) => {
-  router.push({"name": page})
+  router.push({ name: page })
 }
 
 page.value = route.name
-
 </script>
 
 <template>
-  <div class="bg-light-100 font-base text-main w-64">
+  <div class="bg-light-200 border-gray-100 border-r font-base text-main w-64">
     <div class="p-5">
       <span class="text-3xl inline-flex gap-1 items-center font-semibold">
         <svg
@@ -31,10 +39,10 @@ page.value = route.name
             d="M12 2c5.523 0 10 4.477 10 10a10 10 0 0 1 -20 0l.004 -.28c.148 -5.393 4.566 -9.72 9.996 -9.72m2 5a1 1 0 0 0 -1 1v2.999h-2v-2.999a1 1 0 0 0 -.883 -.993l-.117 -.007a1 1 0 0 0 -1 1v8a1 1 0 0 0 2 0v-3.001h2v3.001a1 1 0 0 0 .883 .993l.117 .007a1 1 0 0 0 1 -1v-8a1 1 0 0 0 -1 -1"
           />
         </svg>
-        Zendenta</span
+        ClinicSync</span
       >
 
-      <div class="border border-[#f0f1f3] text-main-200 rounded-md mt-5">
+      <div class="border bg-light-300 border-[#f0f1f3] text-main-200 rounded-md mt-5">
         <div class="p-2 flex gap-2 text-sm items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -56,14 +64,18 @@ page.value = route.name
             <path d="M12 7l0 4" />
           </svg>
           <div>
-            <p>MediHeal</p>
-            <p class="text-xs mt-1">Hill Road, Kericho</p>
+            <p>{{ clinics[0]?.name }}</p>
+            <p class="text-xs mt-1">{{ clinics[0]?.location }}</p>
           </div>
         </div>
       </div>
 
       <ul class="mt-10 flex text-[#6c777d] flex-col gap-3 cursor-pointer text-sm">
-        <li class="py-2 flex bg-[#e8effb] text-[#6379ea] gap-2 items-center pl-4 rounded-md">
+        <li
+          @click="goToPage('home')"
+          :class="page == 'home' ? 'bg-blue-10 text-blue-40' : ''"
+          class="py-2 flex hover:bg-blue-10 hover:text-blue-40 transition-all duration-500 ease-in-out gap-2 items-center pl-4 rounded-md"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -258,8 +270,8 @@ page.value = route.name
       <p class="uppercase pl-4 text-xs text-main-100 font-semibold mt-5">assets</p>
       <ul class="mt-2 flex text-main-200 flex-col gap-1 cursor-pointer text-sm">
         <li
-        @click="goToPage('stock')"
-        :class="page == 'stock' ? 'bg-blue-10 text-blue-40':''"
+          @click="goToPage('stock')"
+          :class="page == 'stock' ? 'bg-blue-10 text-blue-40' : ''"
           class="py-2 flex hover:bg-blue-10 hover:text-blue-40 transition-all duration-500 ease-in-out gap-2 items-center pl-4 rounded-md"
         >
           <svg

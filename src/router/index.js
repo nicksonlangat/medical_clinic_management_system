@@ -7,15 +7,50 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
+      meta: {
+        requiresAuth: true
+      }
     },
     {
       path: '/stock',
       name: 'stock',
-     
-      component: () => import('../views/StocksPage.vue')
+
+      component: () => import('../views/StocksPage.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
+
+    {
+      path: '/register',
+      name: 'register',
+
+      component: () => import('../views/RegisterPage.vue')
+    },
+    {
+      path: '/login',
+      name: 'login',
+
+      component: () => import('../views/LoginPage.vue')
+    },
+    {
+      path: '/forgot',
+      name: 'forgot',
+
+      component: () => import('../views/ForgotPasswordPage.vue')
     }
   ]
 })
 
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    if (!localStorage.getItem('clinicsyncAuthenticated')) {
+      next('/login')
+    }
+    return next()
+  } else {
+    next()
+  }
+})
 export default router
