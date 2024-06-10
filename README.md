@@ -1,6 +1,12 @@
-# frontend
+# ClinicSync
 
-This template should help get you started developing with Vue 3 in Vite.
+ClinicSync is a clinic management system that allows clinic owners to smoothly manage the day to day operations of their clinics by providing the following essential modules:
+
+- Patient Health Records Module
+- Doctor Appointment Module
+- Doctor & Staff Management Module
+- Medicine(Stock) & Inventory Module
+- Order & Sales Module
 
 ## Recommended IDE Setup
 
