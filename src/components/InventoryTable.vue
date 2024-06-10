@@ -10,6 +10,29 @@ let isLoading = ref(false)
 let products = ref([])
 let product_stats = ref(null)
 
+const filters = ref({
+  vendor: '',
+  category: '',
+  sku: '',
+  status: '',
+  stock_number: ''
+})
+
+const selectedFilters = ref([])
+
+
+
+const addFilter = () => {
+  Object.entries(filters.value).forEach(([key, value]) => {
+    if(value != '') {
+      let filter = `${key}: ${value}`
+      console.log(filter)
+      selectedFilters.value.push(filters.value)
+    }
+}
+)}
+
+
 const importInventory = () => {
   emitter.emit('importInventory', {})
 }
@@ -18,10 +41,14 @@ const addProduct = () => {
   emitter.emit('newProduct', {})
 }
 
-const getProducts = () => {
+const products_url = ref("products")
+
+const getProducts = (products_url) => {
   isLoading.value = true
   ApiClient()
-    .get('products')
+    .get(
+      products_url
+    )
     .then((res) => {
       isLoading.value = false
       products.value = res.data
@@ -61,16 +88,20 @@ const editProduct = (product) => {
   emitter.emit('editProduct', { product: product })
 }
 
-getProducts()
+getProducts(products_url.value)
 getProductStats()
 
 emitter.on('refreshProducts', () => {
-  getProducts()
+  getProducts(products_url.value)
   getProductStats()
 })
 
+
 emitter.on('setFilters', (data) => {
-  console.log(data.selectedFilters)
+  filters.value = data.selectedFilters
+  let products_url = `products?vendor=${filters.value.vendor}&&category=${filters.value.category}&&status=${filters.value.status}&&sku=${filters.value.sku}&&stock_number=${data.selectedFilters.stock_number}`
+  getProducts(products_url)
+  addFilter()
 })
 </script>
 
@@ -150,6 +181,7 @@ emitter.on('setFilters', (data) => {
         </button>
       </div>
     </div>
+    
     <div
       v-if="!isLoading && products.length == 0"
       class="mt-5 flex flex-col items-center justify-center"

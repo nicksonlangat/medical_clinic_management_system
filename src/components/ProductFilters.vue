@@ -11,7 +11,6 @@ let categories = ref([])
 
 let vendors = ref([])
 
-const selectedFilters = ref([])
 
 const filters = ref({
   vendor: '',
@@ -22,19 +21,21 @@ const filters = ref({
 })
 
 const applyFilters = () => {
-  Object.entries(filters.value).forEach(([key, value]) => {
-    let filter = `${key}: ${value}`
-    // console.log(filter)
-    addFilter(filter)
-  })
   emitter.emit('setFilters', {
-    selectedFilters: selectedFilters.value
+    selectedFilters: filters.value
   })
   closeFilterDropDown()
+  
 }
 
-const addFilter = (filter) => {
-  selectedFilters.value.push(filter)
+const resetFilters = () =>{
+  filters.value.category = ''
+  filters.value.vendor = ''
+  filters.value.status = ''
+  filters.value.sku = ''
+  filters.value.stock_number = ''
+
+  applyFilters()
 }
 
 const getCategories = () => {
@@ -216,13 +217,13 @@ getVendors()
           <div class="flex flex-col gap-2">
             <label for="">Number of stock</label>
             <input
-              v-model="filters.sku"
+              v-model="filters.stock_number"
               class="py-2 bg-light-200 text-xs rounded-md w-full focus:ring-0 focus:outline-none border-0 text-main-100"
             />
           </div>
         </div>
         <div class="mt-5 flex justify-between items-center">
-          <button class="text-blue-50">Reset filters</button>
+          <button @click="resetFilters" class="text-blue-50">Reset filters</button>
           <button
             @click="applyFilters"
             class="bg-blue-50 px-4 text-white text-xs py-1.5 rounded-md"
