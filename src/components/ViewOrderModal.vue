@@ -10,13 +10,13 @@ const isOpen = ref(false)
 
 let vendors = ref([])
 
-let placing = ref(false)
+let updating = ref(false)
 
 let order = ref({
   vendor: '',
-  notes: '',
-  items: []
+  notes: ''
 })
+
 const text = ref('')
 const notes = ref('')
 
@@ -35,7 +35,7 @@ const getProducts = () => {
           if (!uniqueNames.value.has(product.name)) {
             uniqueNames.value.add(product.name)
             product['quantity'] = 1
-            products.value.push(product)
+            products.value.push({ product: product, is_new: true, quantity: 1 })
           }
         })
       } else {
@@ -50,11 +50,18 @@ const getProducts = () => {
 
 const filteredProducts = computed(() => {
   return products.value
+  // return products.value.filter((product) => product.quantity != 0)
 })
 
-const removeProduct = (name) => {
-  products.value = products.value.filter((product) => product.name !== name)
-  uniqueNames.value.delete(name)
+const removeProduct = (object) => {
+  object.product.quantity = 0
+
+  products.value = products.value.filter((product) => product.product.name !== object.product.name)
+  uniqueNames.value.delete(object.product.name)
+
+  if (!object.is_new) {
+    deleteOrderItem(object)
+  }
 }
 
 const getVendors = () => {
@@ -81,20 +88,16 @@ const selectedVendor = computed(() => {
   return vendor
 })
 
-const placeOrder = () => {
-  placing.value = true
-  console.log(products.value)
-  console.log(order.value.vendor)
-  console.log(notes.value)
+const updateOrder = () => {
+  updating.value = true
   ApiClient()
-    .post('orders/', {
+    .put(`orders/${order.value.id}/`, {
       order_items: products.value,
       vendor: order.value.vendor,
       notes: notes.value
     })
     .then(() => {
-      placing.value = false
-      //setTimeout(() => (placing.value = false), 7000)
+      updating.value = false
       closeModal()
       showNotification()
     })
@@ -103,11 +106,33 @@ const placeOrder = () => {
     })
 }
 
+const updateOrderItem = (order_item) => {
+  ApiClient()
+    .patch(`orderitems/${order_item.id}/`, {
+      status: 'Received'
+    })
+    .then((res) => {
+      order_item.status = res.data.status
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+}
+
+const deleteOrderItem = (order_item) => {
+  ApiClient()
+    .delete(`orderitems/${order_item.id}/`)
+    .then(() => {})
+    .catch((error) => {
+      console.log(error)
+    })
+}
+
 const showNotification = () => {
   emitter.emit('showNotification', {
     type: 'success',
-    title: 'Order placed',
-    message: 'Your order has been successfully placed!'
+    title: 'Order updated',
+    message: 'Your order has been successfully updated!'
   })
 }
 
@@ -119,7 +144,11 @@ function openModal() {
   isOpen.value = true
 }
 
-emitter.on('newOrder', () => {
+emitter.on('viewOrder', (data) => {
+  products.value = data.order.products
+  notes.value = data.order.notes
+  order.value = data.order
+  order.value.vendor = data.order.vendor.id
   openModal()
 })
 
@@ -156,7 +185,7 @@ getVendors()
               class="w-full h-full max-w-2xl transform overflow-hidden text-main font-base rounded-xl bg-white p-6 text-left align-middle shadow-xl transition-all"
             >
               <div class="flex text-xl font-semibold justify-between">
-                <p>New Product Order</p>
+                <p>Order {{ order.order_number }}</p>
 
                 <span
                   @click="closeModal"
@@ -212,7 +241,7 @@ getVendors()
                               d="M18.364 4.636a9 9 0 0 1 .203 12.519l-.203 .21l-4.243 4.242a3 3 0 0 1 -4.097 .135l-.144 -.135l-4.244 -4.243a9 9 0 0 1 12.728 -12.728zm-6.364 3.364a3 3 0 1 0 0 6a3 3 0 0 0 0 -6z"
                             />
                           </svg>
-                          {{ selectedVendor.location }}
+                          {{ selectedVendor?.location }}
                         </div>
                       </div>
                     </div>
@@ -231,7 +260,7 @@ getVendors()
                               d="M9 3a1 1 0 0 1 .877 .519l.051 .11l2 5a1 1 0 0 1 -.313 1.16l-.1 .068l-1.674 1.004l.063 .103a10 10 0 0 0 3.132 3.132l.102 .062l1.005 -1.672a1 1 0 0 1 1.113 -.453l.115 .039l5 2a1 1 0 0 1 .622 .807l.007 .121v4c0 1.657 -1.343 3 -3.06 2.998c-8.579 -.521 -15.418 -7.36 -15.94 -15.998a3 3 0 0 1 2.824 -2.995l.176 -.005h4z"
                             />
                           </svg>
-                          {{ selectedVendor.phone_number }}
+                          {{ selectedVendor?.phone_number }}
                         </div>
                         <div class="flex gap-2 items-center">
                           <svg
@@ -249,7 +278,7 @@ getVendors()
                             />
                           </svg>
 
-                          {{ selectedVendor.email }}
+                          {{ selectedVendor?.email }}
                         </div>
                       </div>
                     </div>
@@ -277,9 +306,10 @@ getVendors()
                         <thead class="text-xs uppercase bg-light-300 text-main-100">
                           <tr>
                             <th scope="col" class="px-2 py-3">product name</th>
-                            <th scope="col" class="px-2 py-3">sku</th>
+
                             <th scope="col" class="px-2 py-3">quantity</th>
                             <th scope="col" class="px-2 py-3">total</th>
+                            <th scope="col" class="px-2 py-3"></th>
                             <th scope="col" class="px-2 py-3"></th>
                           </tr>
                         </thead>
@@ -292,28 +322,29 @@ getVendors()
                             <th scope="row" class="px-3 py-4">
                               <div class="flex gap-2 items-center">
                                 <img
-                                  v-if="product.image"
+                                  v-if="product.product.image"
                                   class="h-8 w-8 rounded-full object-cover"
-                                  :src="product.image"
+                                  :src="product.product.image"
                                   alt=""
                                 />
                                 <img
                                   v-else
                                   class="h-8 w-8 rounded-full object-cover"
-                                  :src="product.image_url"
+                                  :src="product.product.image_url"
                                   alt=""
                                 />
 
                                 <p class="truncate text-xs">
-                                  {{ product.name }} <br /><span
+                                  {{ product.product.name }} <br /><span
                                     class="text-main-100 text-xs font-normal"
                                   >
-                                    {{ product.category.name }}</span
+                                    {{ product.product.category.name }} -
+                                    {{ product.product.sku }}</span
                                   >
                                 </p>
                               </div>
                             </th>
-                            <td class="px-2 py-4 text-xs">{{ product.sku }}</td>
+
                             <td class="px-2 text-xs">
                               <input
                                 class="text-xs rounded-md w-12 text-center focus:outline-none focus:ring-0 border-0 bg-light-200"
@@ -322,10 +353,26 @@ getVendors()
                               />
                             </td>
                             <td class="px-2 py-4 text-xs">
-                              {{ formatPrice(product.quantity * product.price) }}
+                              {{ formatPrice(product.quantity * product.product.price) }}
                             </td>
                             <td class="px-2 py-4 text-xs">
-                              <span class="cursor-pointer" @click="removeProduct(product.name)">
+                              <button
+                                v-if="!product.is_new && product.status != 'Received'"
+                                @click="updateOrderItem(product)"
+                                class="text-xs font-extralight py-0.5 px-2 rounded-md bg-blue-50 text-white"
+                              >
+                                Receive
+                              </button>
+                              <button
+                                v-if="!product.is_new && product.status == 'Received'"
+                                class="text-xs font-extralight py-0.5 px-2 rounded-md bg-emerald-500 text-white"
+                              >
+                                Received
+                              </button>
+                              <button v-else></button>
+                            </td>
+                            <td class="px-2 py-4 text-xs">
+                              <span class="cursor-pointer" @click="removeProduct(product)">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   viewBox="0 0 24 24"
@@ -366,12 +413,11 @@ getVendors()
                   Cancel
                 </button>
                 <button
-                  @click="placeOrder"
-                  :disabled="!products.length || order.vendor == ''"
+                  @click="updateOrder"
                   class="bg-blue-50 inline-flex gap-2 disabled:opacity-40 items-center justify-center w-full text-white py-2 rounded-md"
                 >
                   <svg
-                    v-if="placing"
+                    v-if="updating"
                     class="animate-spin h-5 w-5"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -391,9 +437,9 @@ getVendors()
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  <p v-if="placing">Placing...</p>
+                  <p v-if="updating">Updating...</p>
 
-                  <p v-else>Place order</p>
+                  <p v-else>Update order</p>
                 </button>
               </div>
             </DialogPanel>
