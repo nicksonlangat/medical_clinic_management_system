@@ -20,18 +20,15 @@ const filters = ref({
 
 const selectedFilters = ref([])
 
-
-
 const addFilter = () => {
   Object.entries(filters.value).forEach(([key, value]) => {
-    if(value != '') {
+    if (value != '') {
       let filter = `${key}: ${value}`
       console.log(filter)
       selectedFilters.value.push(filters.value)
     }
+  })
 }
-)}
-
 
 const importInventory = () => {
   emitter.emit('importInventory', {})
@@ -41,14 +38,12 @@ const addProduct = () => {
   emitter.emit('newProduct', {})
 }
 
-const products_url = ref("products")
+const products_url = ref('products')
 
 const getProducts = (products_url) => {
   isLoading.value = true
   ApiClient()
-    .get(
-      products_url
-    )
+    .get(products_url)
     .then((res) => {
       isLoading.value = false
       products.value = res.data
@@ -88,14 +83,13 @@ const editProduct = (product) => {
   emitter.emit('editProduct', { product: product })
 }
 
-getProducts(products_url.value)
+// getProducts(products_url.value)
 getProductStats()
 
 emitter.on('refreshProducts', () => {
   getProducts(products_url.value)
   getProductStats()
 })
-
 
 emitter.on('setFilters', (data) => {
   filters.value = data.selectedFilters
@@ -181,7 +175,7 @@ emitter.on('setFilters', (data) => {
         </button>
       </div>
     </div>
-    
+
     <div
       v-if="!isLoading && products.length == 0"
       class="mt-5 flex flex-col items-center justify-center"

@@ -11,7 +11,6 @@ let categories = ref([])
 
 let vendors = ref([])
 
-
 const filters = ref({
   vendor: '',
   category: '',
@@ -25,10 +24,9 @@ const applyFilters = () => {
     selectedFilters: filters.value
   })
   closeFilterDropDown()
-  
 }
 
-const resetFilters = () =>{
+const resetFilters = () => {
   filters.value.category = ''
   filters.value.vendor = ''
   filters.value.status = ''
