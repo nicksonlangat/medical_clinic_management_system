@@ -6,6 +6,7 @@ import { inject } from 'vue'
 import ApiClient from '../services/http.js'
 import moment from 'moment'
 import OrderFilters from './OrderFilters.vue'
+import OrderOptions from './OrderOptions.vue'
 const orders = ref([])
 const emitter = inject('emitter')
 const text = ref('')
@@ -49,6 +50,10 @@ getOrders(order_url.value)
 
 emitter.on('refreshOrders', () => {
   getOrders(order_url.value)
+})
+
+emitter.on('showOrder', (data) => {
+  viewOrderDetal(data.order)
 })
 
 const filters = ref({
@@ -105,10 +110,8 @@ emitter.on('setOrderFilters', (data) => {
         </svg>
       </div>
       <div class="flex gap-5 items-center text-sm">
-       <OrderFilters/>
-       <div>
-
-       </div>
+        <OrderFilters />
+        <div></div>
         <button
           @click="openNewOrder"
           class="bg-blue-50 text-white py-1 inline-flex gap-2 items-center rounded-md px-3"
@@ -255,7 +258,6 @@ emitter.on('setOrderFilters', (data) => {
             <th scope="col" class="px-6 py-3">items received</th>
             <th scope="col" class="px-6 py-3">email sent</th>
             <th scope="col" class="px-6 py-3"></th>
-            <th scope="col" class="px-6 py-3"></th>
           </tr>
         </thead>
         <tbody>
@@ -340,30 +342,9 @@ emitter.on('setOrderFilters', (data) => {
                 />
               </svg>
             </td>
+
             <td class="px-6 py-4">
-              <button
-                @click="viewOrderDetal(order)"
-                class="bg-blue-50 py-1 px-2 rounded text-xs text-white"
-              >
-                View
-              </button>
-            </td>
-            <td class="px-6 py-4">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="text-main-100 h-5 w-5 cursor-pointer"
-              >
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-                <path d="M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" />
-              </svg>
+              <OrderOptions :order="order" />
             </td>
           </tr>
         </tbody>

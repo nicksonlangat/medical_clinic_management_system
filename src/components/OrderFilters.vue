@@ -155,8 +155,7 @@ getVendors()
                 <option value="Cancelled">Cancelled</option>
               </select>
             </div>
-            
-            
+
             <div class="flex flex-col gap-2 text-sm">
               <label for="">Vendor</label>
               <select
