@@ -83,7 +83,7 @@ const editProduct = (product) => {
   emitter.emit('editProduct', { product: product })
 }
 
-// getProducts(products_url.value)
+getProducts(products_url.value)
 getProductStats()
 
 emitter.on('refreshProducts', () => {
