@@ -5,7 +5,7 @@ import ViewOrderModal from './ViewOrderModal.vue'
 import { inject } from 'vue'
 import ApiClient from '../services/http.js'
 import moment from 'moment'
-
+import OrderFilters from './OrderFilters.vue'
 const orders = ref([])
 const emitter = inject('emitter')
 const text = ref('')
@@ -21,10 +21,12 @@ const formatDate = (value) => {
   return moment(value).format('ll')
 }
 
-const getOrders = () => {
+const order_url = ref('orders')
+
+const getOrders = (url) => {
   isLoading.value = true
   ApiClient()
-    .get('orders')
+    .get(url)
     .then((res) => {
       orders.value = res.data
       isLoading.value = false
@@ -43,10 +45,36 @@ const viewOrderDetal = (order) => {
   emitter.emit('viewOrder', { order: order })
 }
 
-getOrders()
+getOrders(order_url.value)
 
 emitter.on('refreshOrders', () => {
-  getOrders()
+  getOrders(order_url.value)
+})
+
+const filters = ref({
+  vendor: '',
+  status: '',
+  order_number: ''
+})
+
+const selectedFilters = ref([])
+
+const addFilters = () => {
+  Object.entries(filters.value).forEach(([key, value]) => {
+    if (value != '') {
+      let filter = `${key}: ${value}`
+      console.log(filter)
+      selectedFilters.value.push(filters.value)
+    }
+  })
+}
+
+emitter.on('setOrderFilters', (data) => {
+  filters.value = data.selectedFilters
+  order_url.value = `orders?vendor=${filters.value.vendor}&&status=${filters.value.status}&&order_number=${data.selectedFilters.order_number}`
+  console.log(order_url.value)
+  getOrders(order_url.value)
+  addFilters()
 })
 </script>
 <template>
@@ -77,28 +105,10 @@ emitter.on('refreshOrders', () => {
         </svg>
       </div>
       <div class="flex gap-5 items-center text-sm">
-        <button
-          class="border px-3 border-[#E6E9EF] text-main-200 py-1 inline-flex gap-2 items-center rounded-md"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="h-4 w-4"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M4 6l7 0" />
-            <path d="M4 12l7 0" />
-            <path d="M4 18l9 0" />
-            <path d="M15 9l3 -3l3 3" />
-            <path d="M18 6l0 12" />
-          </svg>
-          Filters
-        </button>
+       <OrderFilters/>
+       <div>
+
+       </div>
         <button
           @click="openNewOrder"
           class="bg-blue-50 text-white py-1 inline-flex gap-2 items-center rounded-md px-3"
