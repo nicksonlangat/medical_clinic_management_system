@@ -21,6 +21,15 @@ const router = createRouter({
         requiresAuth: true
       }
     },
+    {
+      path: '/staff',
+      name: 'staff',
+
+      component: () => import('../views/StaffPage.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
 
     {
       path: '/register',

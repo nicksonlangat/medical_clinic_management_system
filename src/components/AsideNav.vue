@@ -145,6 +145,8 @@ page.value = route.name
         </li>
 
         <li
+          @click="goToPage('staff')"
+          :class="page == 'staff' ? 'bg-blue-10 text-blue-40' : ''"
           class="py-2 flex hover:bg-blue-10 hover:text-blue-40 transition-all duration-500 ease-in-out gap-2 items-center pl-4 rounded-md"
         >
           <svg
