@@ -1,10 +1,10 @@
 <script setup>
 import AsideNav from '@/components/AsideNav.vue'
 import TopNav from '@/components/TopNav.vue'
-import DoctorTable from '@/components/DoctorTable.vue'
-import InventoryTable from '@/components/InventoryTable.vue'
+import StaffTable from '@/components/StaffTable.vue'
 import NotificationPage from '@/components/NotificationPage.vue'
 import moment from 'moment'
+import ApiClient from '../services/http.js'
 
 import { ref } from 'vue'
 
@@ -13,7 +13,6 @@ import { inject } from 'vue'
 const emitter = inject('emitter')
 
 const title = ref('Staff')
-let currentView = ref('doctor')
 
 let today = new Date()
 
@@ -22,27 +21,33 @@ let hours = new Date().getHours()
 let greeting = hours < 12 ? 'Morning' : hours <= 16 && hours >= 12 ? 'Afternoon' : 'Evening'
 
 let user = ref(null)
-let product_stats = ref(null)
+
+let staff_stats = ref(null)
+
 const formatToday = () => {
   return moment(today).format('ll')
-}
-
-const changeCurrentView = (view) => {
-  return (currentView.value = view)
-}
-
-const formatPrice = (value) => {
-  let val = (value / 1).toFixed(2).replace(',', '.')
-  return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
 emitter.on('setCurrentUser', (data) => {
   user.value = data.user
 })
 
-emitter.on('loadProductStats', (data) => {
-  product_stats.value = data
+emitter.on('loadStaffStats', () => {
+  getStaffStats()
 })
+
+const getStaffStats = () => {
+  ApiClient()
+    .get('staff/stats')
+    .then((res) => {
+      staff_stats.value = res.data
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+}
+
+getStaffStats()
 </script>
 
 <template>
@@ -60,20 +65,6 @@ emitter.on('loadProductStats', (data) => {
         <div class="px-4 py-4 flex-1 overflow-y-auto">
           <!-- Your content -->
 
-          <div class="mt-5 cursor-pointer text-main-100 gap-5 flex border-gray-100 border-b">
-            <span
-              @click="changeCurrentView('doctor')"
-              :class="currentView == 'doctor' ? 'border-b-4 text-blue-50 border-blue-50' : ''"
-              class="hover:text-blue-50 transition-all duration-300"
-              >Doctor Staff</span
-            >
-            <span
-              @click="changeCurrentView('general')"
-              :class="currentView == 'general' ? 'border-b-4 text-blue-50 border-blue-50' : ''"
-              class="hover:text-blue-50 transition-all duration-300"
-              >General Staff</span
-            >
-          </div>
           <div class="mt-5">
             <div class="flex gap-3 items-center">
               <span class="bg-blue-10 text-blue-50 py-2 px-2 rounded-full">
@@ -98,12 +89,18 @@ emitter.on('loadProductStats', (data) => {
                 </svg>
               </span>
               <p class="text-main text-3xl">
-                45 <span class="text-sm text-main-200">Doctors</span>
+                {{ staff_stats?.doctor_count }} <span class="text-sm text-main-200">Doctors</span>
+              </p>
+              <p class="text-main text-3xl">
+                {{ staff_stats?.nurse_count }} <span class="text-sm text-main-200">Nurses</span>
+              </p>
+              <p class="text-main text-3xl">
+                {{ staff_stats?.general_count }} <span class="text-sm text-main-200">General</span>
               </p>
             </div>
           </div>
-          <InventoryTable v-if="currentView == 'general'" />
-          <DoctorTable v-if="currentView == 'doctor'" />
+
+          <StaffTable />
         </div>
       </div>
     </div>
