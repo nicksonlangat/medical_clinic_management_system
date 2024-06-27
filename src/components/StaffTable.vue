@@ -5,7 +5,7 @@ import ViewStaffModal from './ViewStaffModal.vue'
 import { inject } from 'vue'
 import ApiClient from '../services/http.js'
 import moment from 'moment'
-import OrderFilters from './OrderFilters.vue'
+import StaffFilters from './StaffFilters.vue'
 import StaffOptions from './StaffOptions.vue'
 const staff = ref([])
 const emitter = inject('emitter')
@@ -76,7 +76,7 @@ const addFilters = () => {
 
 emitter.on('setStaffFilters', (data) => {
   filters.value = data.selectedFilters
-  staff_url.value = `staff?vendor=${filters.value.vendor}&&status=${filters.value.status}&&order_number=${data.selectedFilters.order_number}`
+  staff_url.value = `staff?job_title=${filters.value.job_title}&&job_type=${filters.value.job_type}&&staff_type=${filters.value.staff_type}`
   getStaff(staff_url.value)
   addFilters()
 })
@@ -109,7 +109,7 @@ emitter.on('setStaffFilters', (data) => {
         </svg>
       </div>
       <div class="flex gap-5 items-center text-sm">
-        <OrderFilters />
+        <StaffFilters />
         <div></div>
         <button
           @click="openNewStaff"
@@ -129,7 +129,7 @@ emitter.on('setStaffFilters', (data) => {
             <path d="M12 5l0 14" />
             <path d="M5 12l14 0" />
           </svg>
-          Add doctor
+          Add staff
         </button>
       </div>
     </div>
@@ -217,7 +217,7 @@ emitter.on('setStaffFilters', (data) => {
       <p class="text-main-100 text-sm mt-1">Please add some staff to view them here.</p>
       <button
         @click="openNewStaff"
-        class="bg-blue-50 mt-2 text-white py-1 inline-flex gap-2 items-center rounded-md px-3"
+        class="bg-blue-50 mt-2 text-sm text-white py-1 inline-flex gap-2 items-center rounded-md px-3"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -233,7 +233,7 @@ emitter.on('setStaffFilters', (data) => {
           <path d="M12 5l0 14" />
           <path d="M5 12l14 0" />
         </svg>
-        New Order
+        Add staff
       </button>
     </div>
 
