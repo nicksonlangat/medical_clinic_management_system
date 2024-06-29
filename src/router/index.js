@@ -30,6 +30,15 @@ const router = createRouter({
         requiresAuth: true
       }
     },
+    {
+      path: '/patients',
+      name: 'patients',
+
+      component: () => import('../views/PatientsPage.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
 
     {
       path: '/register',
