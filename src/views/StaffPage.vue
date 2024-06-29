@@ -3,7 +3,6 @@ import AsideNav from '@/components/AsideNav.vue'
 import TopNav from '@/components/TopNav.vue'
 import StaffTable from '@/components/StaffTable.vue'
 import NotificationPage from '@/components/NotificationPage.vue'
-import moment from 'moment'
 import ApiClient from '../services/http.js'
 
 import { ref } from 'vue'
@@ -14,19 +13,9 @@ const emitter = inject('emitter')
 
 const title = ref('Staff')
 
-let today = new Date()
-
-let hours = new Date().getHours()
-
-let greeting = hours < 12 ? 'Morning' : hours <= 16 && hours >= 12 ? 'Afternoon' : 'Evening'
-
 let user = ref(null)
 
 let staff_stats = ref(null)
-
-const formatToday = () => {
-  return moment(today).format('ll')
-}
 
 emitter.on('setCurrentUser', (data) => {
   user.value = data.user
