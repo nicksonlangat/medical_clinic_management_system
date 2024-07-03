@@ -112,7 +112,11 @@
 import { defineProps, ref } from 'vue'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import { inject } from 'vue'
+
 import ApiClient from '../services/http.js'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 const props = defineProps({
   patient: {
     type: Object,
@@ -123,7 +127,7 @@ const props = defineProps({
 const emitter = inject('emitter')
 
 const showPatientDetails = () => {
-  emitter.emit('showPatient', { patient: props.patient })
+  router.push({ name: 'patient', params: { id: props.patient.id } })
 }
 
 const activeStatus = ref('')
