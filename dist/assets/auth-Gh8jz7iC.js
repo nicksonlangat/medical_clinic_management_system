@@ -1,0 +1,1 @@
+import{Q as s}from"./index-CoyCQmb6.js";const o="/assets/1-DNc-ZHB8.png",e="/assets/2-DhkznSAg.png",i=(t="application/json")=>s.create({baseURL:"https://clinic-api.nicklangat.com/",headers:{Accept:"application/json","Content-Type":t}});export{i as A,o as _,e as a};

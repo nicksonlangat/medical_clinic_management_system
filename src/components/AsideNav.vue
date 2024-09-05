@@ -100,6 +100,8 @@ page.value = route.name
       <p class="uppercase pl-4 text-xs text-main-100 font-semibold mt-5">clinic</p>
       <ul class="mt-2 flex text-main-200 flex-col gap-1 cursor-pointer text-sm">
         <li
+          @click="goToPage('appointments')"
+          :class="page == 'appointments' ? 'bg-blue-10 text-blue-40' : ''"
           class="py-2 flex hover:bg-blue-10 hover:text-blue-40 transition-all duration-500 ease-in-out gap-2 items-center pl-4 rounded-md"
         >
           <svg

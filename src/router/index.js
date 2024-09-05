@@ -48,6 +48,15 @@ const router = createRouter({
         requiresAuth: true
       }
     },
+    {
+      path: '/appointments',
+      name: 'appointments',
+
+      component: () => import('../views/AppointmentsPage.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
 
     {
       path: '/register',

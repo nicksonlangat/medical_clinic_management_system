@@ -11,7 +11,6 @@ const patients = ref([])
 const emitter = inject('emitter')
 const text = ref('')
 let isLoading = ref(false)
-const baseURL = import.meta.env.VITE_BASE_URL
 const filteredPatients = computed(() => {
   return patients.value.filter((patient) => {
     return patient.first_name.toLowerCase().includes(text.value.toLowerCase())
@@ -293,7 +292,7 @@ emitter.on('setPatientFilters', (data) => {
               <div class="flex gap-2 items-center">
                 <img
                   v-if="patient.image"
-                  :src="baseURL + patient.image"
+                  :src="patient.image"
                   class="size-8 rounded-full object-cover"
                   alt=""
                 />
