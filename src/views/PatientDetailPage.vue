@@ -1,15 +1,20 @@
 <script setup>
 import AsideNav from '@/components/AsideNav.vue'
 import TopNav from '@/components/TopNav.vue'
+import NewAppointmentModal from '@/components/NewAppointmentModal.vue'
+import ViewPatientModal from '@/components/ViewPatientModal.vue'
+import NotificationPage from '@/components/NotificationPage.vue'
 import moment from 'moment'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import ApiClient from '../services/http.js'
-
+import { inject } from 'vue'
 const route = useRoute()
 const title = ref('Patient')
 const patient_id = ref(route.params['id'])
 const patient = ref(null)
+const emitter = inject('emitter')
+
 const formatDate = (value) => {
   return moment(value).format('ll')
 }
@@ -20,7 +25,13 @@ const getPatientDetails = () => {
       patient.value = res.data
     })
 }
+const openNewReservation = () => {
+  emitter.emit('newReservation')
+}
 
+const editPatient = () => {
+  emitter.emit('editPatient', { patient: patient.value })
+}
 getPatientDetails()
 </script>
 
@@ -30,6 +41,8 @@ getPatientDetails()
     <div class="flex-1 flex overflow-hidden">
       <!-- Fixed sidebar -->
       <AsideNav />
+      <NewAppointmentModal />
+      <ViewPatientModal />
       <NotificationPage />
       <!--  -->
       <!-- Scroll wrapper -->
@@ -44,7 +57,7 @@ getPatientDetails()
               <div class="flex gap-5 items-center">
                 <img
                   v-if="patient.image"
-                  :src="baseURL + patient.image"
+                  :src="patient.image"
                   class="size-20 rounded-full object-cover"
                   alt=""
                 />
@@ -59,14 +72,19 @@ getPatientDetails()
                   <div class="border mt-3 w-64 rounded-md text-sm">
                     <div class="p-2 flex items-center justify-between">
                       <p class="text-xs text-main-100">Last edited 45 days ago</p>
-                      <span class="text-blue-50 mr-2 cursor-pointer">Edit</span>
+                      <span @click="editPatient" class="text-blue-50 mr-2 cursor-pointer"
+                        >Edit</span
+                      >
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             <div>
-              <button class="py-1.5 text-sm text-white bg-blue-50 rounded-md px-3">
+              <button
+                @click="openNewReservation"
+                class="py-1.5 text-sm text-white bg-blue-50 rounded-md px-3"
+              >
                 Create Appointment
               </button>
             </div>
@@ -135,7 +153,7 @@ getPatientDetails()
                   <p v-if="patient?.is_allergic">Yes</p>
                   <p v-else>No</p>
                 </div>
-               
+
                 <div class="flex flex-col gap-1">
                   <p class="text-main-100 text-xs">Allergens</p>
                   <p>{{ patient?.allergic_description }}</p>
@@ -144,11 +162,8 @@ getPatientDetails()
                   <p class="text-main-100 text-xs">Medical Condition</p>
                   <p>{{ patient?.medical_condition }}</p>
                 </div>
-               
               </div>
             </div>
-            
-            
           </div>
         </div>
       </div>
